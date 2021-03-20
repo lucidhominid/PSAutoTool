@@ -62,7 +62,7 @@ Write-Verbose "Installing $FileName."
 Start-Process -Wait -FilePath "$env:TEMP\$FileName" /VerySilent
 $Path = (Resolve-Path 'C:\Program Files*\Git',"C:\Users\$env:Username\AppData\L*\Pr*\Git\").Path
 if($Path){
-    Write-Host "Installed to $Path."
+    Write-Host "Installed Git $Version to $Path."
 }else{
     throw "Failed to install Git $Version."
 }

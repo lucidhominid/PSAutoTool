@@ -8,7 +8,7 @@ param (
     [Parameter()]
     [ArgumentCompleter({
         param($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
-        [PSAutoTool.Mouse].DeclaredMethods|
+        [PSAutoTool.Cursor].DeclaredMethods|
             Where-Object {
                 $_.IsPublic `
                 -and `
@@ -34,7 +34,7 @@ param (
 )
 process{
     if($Position){
-        [PSAutoTool.Mouse]::SetCursorPosition(
+        [PSAutoTool.Cursor]::SetPosition(
             (
                 $Position.x,$Position[0] |
                     Where-Object {$_ -is [int]}|
@@ -49,7 +49,7 @@ process{
         Start-Sleep -milliseconds 50
     }
     if($Button){
-        Invoke-Expression "[PSAutoTool.Mouse]::$Button()"
+        Invoke-Expression "[PSAutoTool.Cursor]::$Button()"
         Start-Sleep -milliseconds 50
     }
 }
