@@ -1,12 +1,23 @@
-$ModuleRootPath =  Split-Path -Path $MyInvocation.MyCommand.Path
-$ModuleName     = (Split-Path -Path $ModuleRootPath -Leaf) #-replace '\.ps1(?=$)'
-$Global:_PSAutoToolNamespace = Add-type -Path $ModuleRootPath\$ModuleName.cs -ReferencedAssemblies System.Drawing -PassThru
+Get-ChildItem $PSScriptRoot -Filter *.cs|
+    Add-type -ReferencedAssemblies System.Drawing, System.Windows.Forms
 
-Get-ChildItem $ModuleRootPath\Functions -filter *.ps1 | 
-    ForEach-Object{
-        .(
-            [Scriptblock]::Create(
-                "Function $($_.Name -replace '\.ps1'){$((Get-Content $_.FullName) -join "`n")}"
-            )
+Get-ChildItem $PSScriptRoot\Functions -filter *.ps1 | 
+    ForEach-Object {
+        $ThisFunctionName = $_.Name -replace '\.ps1'
+        $ThisFunction = [Scriptblock]::Create(
+            "Function $ThisFunctionName {$((Get-Content $_.FullName) -join "`n")}"
         )
+        .$ThisFunction
+        ($ThisFunction.ast.EndBlock.statements.body.beginblock.Statements| 
+            Where-Object {
+                $_.condition.extent.text -like "`$PSCmdlet.MyInvocation.InvocationName"
+            }).Clauses.Item1.Value|
+            Where-Object {$_ -ne $null}|
+            ForEach-Object{
+                try{
+                    New-Alias -Name $_ -Value $ThisFunctionName -ErrorAction Stop
+                }catch{
+                    Write-Verbose "Alias '$_' with value '$ThisFunctionName' could not being exported."
+                }
+            }
     }

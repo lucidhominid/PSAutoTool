@@ -1,0 +1,1 @@
+[PSAutoTool.Mouse]::GetPosition()
