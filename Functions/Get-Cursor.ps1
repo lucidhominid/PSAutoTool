@@ -1,1 +1,1 @@
-[PSAutoTool.Mouse]::GetPosition()
+[PSAutoTool.Cursor]::GetPosition()

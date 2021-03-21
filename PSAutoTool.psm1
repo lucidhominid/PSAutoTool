@@ -1,5 +1,7 @@
-Get-ChildItem $PSScriptRoot -Filter *.cs|
-    Add-type -ReferencedAssemblies System.Drawing, System.Windows.Forms
+Get-ChildItem $PSScriptRoot -Filter *.cs |
+    ForEach-Object{
+        Add-type -Path $_.FullName -ReferencedAssemblies System.Drawing, System.Windows.Forms
+    }
 
 Get-ChildItem $PSScriptRoot\Functions -filter *.ps1 | 
     ForEach-Object {
