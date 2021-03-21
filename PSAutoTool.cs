@@ -70,7 +70,7 @@ namespace PSAutoTool{
 
         [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)] 
         private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
-                    
+
         [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)] 
         private static extern int GetWindowText(IntPtr hwnd,StringBuilder lpString, int cch);
 
