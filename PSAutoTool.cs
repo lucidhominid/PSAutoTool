@@ -1,4 +1,5 @@
 using System;
+using System.Runtime;
 using System.Text;
 using System.Drawing;
 using System.Windows;
@@ -19,6 +20,10 @@ namespace PSAutoTool{
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int x, int y);
 
+        public static System.Windows.Forms.MouseButtons GetButtons(){
+            System.Windows.Forms.MouseButtons buttons = System.Windows.Forms.UserControl.MouseButtons;
+            return buttons;
+        }
         public static System.Drawing.Point GetPosition(){
             System.Drawing.Point lpPoint;
             GetCursorPos(out lpPoint);
@@ -54,12 +59,46 @@ namespace PSAutoTool{
         }  
     }
 
-    public class Keyboard {
-        public Keyboard(){
+    namespace Keyboard {
+        public class Keys {
+            public string value;
+            public Keys(){
+            }
+            public Keys(string keys){
+                this.value = keys;
+            }
+            public Keys(KeyStroke keystroke){
+                string[] joinstring = {
+                    keystroke.Modifier,
+                    "(",
+                    keystroke.Key,
+                    ")"
+                };
+                this.value = string.Join(null,joinstring);
+            }
+            public void Send (){
+                string sendstring = this.value;
+                System.Windows.Forms.SendKeys.SendWait(sendstring);
+            }
+            public static void Send (string keys){
+                System.Windows.Forms.SendKeys.SendWait(keys);
+            }
         }
-        
-        public static void SendKeys (string keys){
-            System.Windows.Forms.SendKeys.SendWait(keys);
+
+        public class KeyStroke{
+            public string Modifier;
+            public string Key;
+            public KeyStroke(){
+            }
+            public KeyStroke(string modifier, string key){
+                this.Modifier = modifier;
+                this.Key      = key;
+            }
+            public void Send(){
+                KeyStroke thiskey = this;
+                Keys Sendstroke = new Keys(thiskey);
+                Sendstroke.Send();
+            }
         }
     }
 

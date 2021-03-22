@@ -30,22 +30,33 @@ param (
                 )
             }
     })][String]
-    $Button
+    $Button,
+
+    [Switch]
+    $Relative
 )
 process{
     if($Position){
+        if($Relative){
+            $Current = [PSAutoTool.Cursor]::GetPosition()
+        }else{
+            $Current = $null
+        }
         [PSAutoTool.Cursor]::SetPosition(
             (
-                $Position.x,$Position[0] |
+                $Current.x+ (
+                $Position.x,[Int]$Position[0] |
                     Where-Object {$_ -is [int]}|
                     Select-Object -First 1
-            ),(
-                $Position.y,$Position[1] |
+            )),
+            (
+                $Current.y+ [Int](
+                $Position.y,[Int]$Position[1] |
                     Where-Object {$_ -is [int]}|
                     Select-Object -First 1
-            )
-
+            ))
         )
+
         Start-Sleep -milliseconds 50
     }
     if($Button){
