@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
     [Parameter(
-        ValueFromPipeLineByPropertyName
+        ValueFromPipeLine
     )][Object[]]
     $Position,
 
@@ -23,18 +23,38 @@ param (
                     'ParameterValue',
                     (
                         (
-                            $_|Select-Object Name, Module, *Type*|
-                                Format-List|Out-String
+                            $_|Select-Object Name, Module, *Type* |
+                                Format-List |
+                                Out-String
                         ) -replace '\n\n+',"`n"
                     )
                 )
             }
     })][String]
-    $Button,
+    $Action,
+    [Parameter(
+        ValueFromPipelineByPropertyName,
+        ParameterSetName = 'RecordedState'
+    )]
+    $Buttons,
 
-    [Switch]
+    [Parameter(
+        ValueFromPipelineByPropertyName,
+        ParameterSetName = 'RecordedState'
+    )][Switch]
+    $ClearOnEnd,
+
+    [Parameter(
+        ValueFromPipelineByPropertyName
+    )][Switch]
     $Relative
 )
+begin{
+    if($ClearOnEnd){
+        [PSAutoTool.Cursor]::LeftUp()
+        [PSAutoTool.Cursor]::RightUp()
+    }
+}
 process{
     if($Position){
         if($Relative){
@@ -42,25 +62,46 @@ process{
         }else{
             $Current = $null
         }
+        if($Position[0] -is [int]){
+            $Position = @{
+                x = $Position[0]
+                y = $Position[1]
+            }
+        }
         [PSAutoTool.Cursor]::SetPosition(
-            (
-                $Current.x+ (
-                $Position.x,[Int]$Position[0] |
-                    Where-Object {$_ -is [int]}|
-                    Select-Object -First 1
-            )),
-            (
-                $Current.y+ [Int](
-                $Position.y,[Int]$Position[1] |
-                    Where-Object {$_ -is [int]}|
-                    Select-Object -First 1
-            ))
+            ([Int]$Current.x + [Int]$Position.x),
+            ([Int]$Current.y + [Int]$Position.y)
         )
 
+        Start-Sleep -milliseconds 5
+    }
+    if($Action){
+        Invoke-Expression "[PSAutoTool.Cursor]::$Action()"
         Start-Sleep -milliseconds 50
     }
-    if($Button){
-        Invoke-Expression "[PSAutoTool.Cursor]::$Button()"
-        Start-Sleep -milliseconds 50
+    if($Buttons){
+        Start-Sleep -milliseconds 5
+        $NewButtons     = $Buttons -split ', '
+        'Left','Right'|
+            ForEach-Object{
+                if(
+                    $NewButtons     -inotcontains $_
+                ){
+                    Invoke-Expression "[PSAutoTool.Cursor]::$_`Up()"
+                }elseif(
+                    $NewButtons     -icontains $_ -and
+                    $LastButtons -inotcontains $_
+                ){
+                    Invoke-Expression "[PSAutoTool.Cursor]::$_`Down()"
+                }
+            }
+        $LastButtons = $NewButtons
+        
+    }
+}
+end{
+    if($ClearOnEnd){
+        [PSAutoTool.Cursor]::LeftUp()
+        [PSAutoTool.Cursor]::RightUp()
     }
 }
