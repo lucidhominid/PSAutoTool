@@ -2,7 +2,8 @@ param(
     $Duration = 10,
     $Delay = 5,
     [Switch]
-    $Relative
+    $Relative,
+    $SetDelay = 5
 )
 Write-Host "Cursor recording starts in $Delay seconds.."
 1..$Delay |
@@ -19,16 +20,23 @@ $LastCursor = Get-Cursor
             Write-Host "Recording. $($Duration - $Current) seconds left..."
         }
         $CurrentCursor = Get-Cursor
-        if($Relative){
-            [PSCustomObject]@{
-                X = $CurrentCursor.X-$LastCursor.X
-                Y = $CurrentCursor.Y-$LastCursor.Y
-                Buttons = $CurrentCursor.Buttons
-                Relative = $true
+        if($CurrentCursor -eq $LastCursor){
+            $DelaySet += $SetDelay
+        }else {
+            $DelaySet = $SetDelay
+            if($Relative){
+                [PSCustomObject]@{
+                    X = $CurrentCursor.X-$LastCursor.X
+                    Y = $CurrentCursor.Y-$LastCursor.Y
+                    Buttons = $CurrentCursor.Buttons
+                    Relative = $true
+                    Delay    = $DelaySet
+                }
+            }else{
+                $CurrentCursor
             }
-            $LastCursor = $CurrentCursor
-        }else{
-            $CurrentCursor
         }
+        
+        $LastCursor = $CurrentCursor
         Start-Sleep -Milliseconds 10
     }

@@ -1,6 +1,6 @@
 using System;
-using System.Runtime;
 using System.Text;
+using System.Runtime;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
@@ -215,6 +215,9 @@ namespace PSAutoTool{
         }
         public static System.Windows.Forms.Screen[] GetAll(){
             return System.Windows.Forms.Screen.AllScreens;
+        }
+        public static System.Drawing.Rectangle GetArea(){
+            return System.Windows.Forms.SystemInformation.VirtualScreen;
         }
     }
 
